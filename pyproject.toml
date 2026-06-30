@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nomens"
-description = ""
-version = "0.1.0"
+description = "A lightweight Python utility for defining non-instantiable, attribute-frozen, privacy-aware namespace classes."
+version = "1.0.0"
 requires-python = ">=3.14"
 readme = "README.md"
 keywords = ["namespace", "scope", "constants", "mypy"]
