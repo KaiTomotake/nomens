@@ -30,18 +30,19 @@ private attributes from normal access.
 ```python
 from nomens import namespace
 
-class Config(namespace):
+# Since it represents a namespace, snake_case is recommended for its name.
+class config(namespace):
     DEBUG = False
     VERSION = "1.0.0"
 
 # Normal reads are fine
-print(Config.VERSION)  # "1.0.0"
+print(config.VERSION)  # "1.0.0"
 
 # Since it's frozen, modification raises an error
-Config.DEBUG = True  # AttributeError: Cannot assign to DEBUG in namespace Config
+config.DEBUG = True  # AttributeError: Cannot assign to DEBUG in namespace config
 
 # Instantiation also raises an error
-Config()  # TypeError: namespace Config is not intended to be instantiated.
+config()  # TypeError: namespace config is not intended to be instantiated.
 ```
 
 ## Class arguments
@@ -50,7 +51,7 @@ When inheriting from `namespace`, you can customize behavior with the
 following class arguments:
 
 ```python
-class Config(namespace, frozen=True, unfrozen_attrs=["CACHE"], priv_attrs=["_secret"]):
+class config(namespace, frozen=True, unfrozen_attrs=["CACHE"], priv_attrs=["_secret"]):
     DEBUG = False
     CACHE = {}
     _secret = "hidden"
@@ -73,16 +74,16 @@ can allow attribute editing only within a specific scope. Upon exiting
 the `with` block, the original frozen state is automatically restored.
 
 ```python
-class Config(namespace):
+class config(namespace):
     COUNT = 0
 
 # Temporarily unfreeze all attributes
-with Config.unfrozen():
-    Config.COUNT += 1
+with config.unfrozen():
+    config.COUNT += 1
 
 # Temporarily unfreeze only the specified attribute
-with Config.unfrozen("COUNT"):
-    Config.COUNT += 1
+with config.unfrozen("COUNT"):
+    config.COUNT += 1
 ```
 
 ## Private attributes
@@ -91,10 +92,10 @@ Attributes specified in `priv_attrs` raise an `AttributeError` on
 normal access.
 
 ```python
-class Config(namespace, priv_attrs=["_secret"]):
+class config(namespace, priv_attrs=["_secret"]):
     _secret = "hidden"
 
-Config._secret  # AttributeError: Config has no public attribute _secret.
+config._secret  # AttributeError: config has no public attribute _secret.
 ```
 
 ## Class methods
