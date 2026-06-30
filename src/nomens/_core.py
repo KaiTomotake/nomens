@@ -29,7 +29,7 @@ def _type_getattr[T](cls: type[T], name: str, /, default: typing.Any = _SENTINEL
             raise
         return default
 
-def _type_setattr[T](cls: type[T], name: str, value: typing.Any) -> None:
+def _type_setattr(cls: type, name: str, value: typing.Any) -> None:
     """
     Internal helper function.
 
@@ -46,7 +46,7 @@ def _type_setattr[T](cls: type[T], name: str, value: typing.Any) -> None:
 
     return type.__setattr__(cls, name, value)
 
-class _namespace_dict[K, V](dict[K, V]):
+class _namespace_dict[V](dict[str, V]):
     """
     Internal helper class.
 
@@ -55,7 +55,7 @@ class _namespace_dict[K, V](dict[K, V]):
     the same name is defined twice within the class body).
     """
     
-    def __setitem__(self, key: K, value: V) -> None:
+    def __setitem__(self, key: str, value: V) -> None:
         if key in self:
             raise ValueError(f"Duplicate name {key} in namespace {self["__qualname__"]}")
         return super().__setitem__(key, value)
@@ -97,7 +97,7 @@ class _namespace_meta(type):
         `AttributeError` if access to a private attribute is attempted.
         """
 
-        if name in _type_getattr(self, "_ns_private", []):
+        if name in _type_getattr(type(self), "_ns_private", []):
             raise AttributeError(f"{self.__qualname__} has no public attribute {name}.")
         return super().__getattribute__(name)
 
@@ -119,14 +119,14 @@ class _namespace_meta(type):
         """
 
         if (
-            _type_getattr(self, "_ns_frozen", False)
-            and name not in _type_getattr(self, "_ns_unfrozen_attrs", [])
+            _type_getattr(type(self), "_ns_frozen", False)
+            and name not in _type_getattr(type(self), "_ns_unfrozen_attrs", [])
             and name != "_ns_frozen"
             and name != "_ns_unfrozen_attrs"
             and name != "_ns_private"
         ):
             try:
-                _type_getattr(self, name)
+                _type_getattr(type(self), name)
             except AttributeError:   
                 raise AttributeError(f"Cannot add {name} to namespace '{self.__qualname__}'")
             else:
@@ -148,14 +148,14 @@ class _namespace_meta(type):
         """
 
         if (
-            _type_getattr(self, "_ns_frozen", False) 
-            and name not in _type_getattr(self, "_ns_unfrozen_attrs", [])
+            _type_getattr(type(self), "_ns_frozen", False) 
+            and name not in _type_getattr(type(self), "_ns_unfrozen_attrs", [])
         ):
             raise AttributeError(f"cannot delete {name} from frozen namespace {self.__qualname__}")
         return super().__delattr__(name)
     
     @classmethod
-    def __prepare__(metacls, _name: str, _bases: tuple[type, ...], /, **_kwds) -> _namespace_dict[str, object]:
+    def __prepare__(metacls, _name: str, _bases: tuple[type, ...], /, **_kwds) -> _namespace_dict[object]:
         """
         Uses `_namespace_dict`, which can detect duplicate definitions,
         as the namespace for the class body.
@@ -231,7 +231,7 @@ class namespace(metaclass=_namespace_meta):
 
     @classmethod
     @contextlib.contextmanager
-    def unfrozen(cls, *args: str) -> collections.abc.Generator[typing.Self, None, None]:
+    def unfrozen(cls, *args: str) -> collections.abc.Generator[type[typing.Self], None, None]:
         """
         A function to be used together with `with` to allow operating
         on the attributes of a class whose `frozen` is `True`, only

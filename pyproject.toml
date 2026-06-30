@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nomens"
 description = "A lightweight Python utility for defining non-instantiable, attribute-frozen, privacy-aware namespace classes."
-version = "1.0.0"
+version = "1.1.0"
 requires-python = ">=3.14"
 readme = "README.md"
 keywords = ["namespace", "scope", "constants", "mypy"]
@@ -27,3 +27,6 @@ email = "kaitomotake@gmail.com"
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["nomens"]
+
+[tool.setuptools.package-data]
+nomens = ["py.typed"]
